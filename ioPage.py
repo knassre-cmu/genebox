@@ -36,6 +36,7 @@ class IOPage(Mode):
         if abs(event.x - app.width / 2) < 2.5 * app.bw:
             if abs(event.y - app.height * 0.3) < app.height * 0.05:
                 app.makeGenome = True
+                app.selecting = False
                 app.editGenome = False
                 return
             elif abs(event.y - app.height * 0.45) < app.height * 0.05:

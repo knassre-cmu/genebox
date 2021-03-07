@@ -10,13 +10,11 @@ class Query(Mode):
         app.sx, app.sy = app.width * 0.8, app.height * 0.3
         app.r = app.width * 0.035
         app.qString = ""
-        app.searched = False
-        app.searchResults = []
+        app.maxSearches = 22
+        app.searchResults = [(chr(i)*(i%40), 1000+i) for i in range(97, 117)]
 
     def modeActivated(app):
         app.mx, app.my = 0, 0
-        # app.searched = False
-        # app.searchResults = []
 
     def keyPressed(app, event):
         if event.key == "Delete":
@@ -41,8 +39,20 @@ class Query(Mode):
         elif ((app.mx-app.sx)**2 + (app.my-app.sy)**2)**0.5 < app.r:
             if app.qString != "":
                 print(f"SEARCH: {app.qString}")
-                app.searched = True
-                app.app.setActiveMode(app.app.select)
+                return
+        x0 = app.width - app.sx
+        y0 = app.sy + 2 * app.r
+        w = 8 * app.r
+        for i in range(len(app.searchResults)):
+            if x0 <= app.mx <= x0 + w:
+                if y0 <= app.my <= y0 + app.r:
+                    app.app.selectName, app.app.selectId = app.searchResults[i]
+                    print(f"SELECT: {app.searchResults[i]}")
+                    app.app.setActiveMode(app.app.select)
+            y0 += 1.5 * app.r
+            if i == app.maxSearches // 2 - 1:
+                x0 = app.width - app.sx + w + 2 * app.r
+                y0 = app.sy + 2 * app.r
 
     def renderSearchbar(app, canvas):
         canvas.create_rectangle(app.sx, app.sy - app.r, app.width - app.sx, app.sy + app.r,
@@ -55,16 +65,42 @@ class Query(Mode):
             width = bounds[2] - bounds[0]
             if i > len(app.qString) or width > 2 * app.sx - app.width - 2.5 * app.r:
                 break
+            canvas.delete(textID)
             i += 1
 
         canvas.create_text(app.width - app.sx + app.r / 2, app.sy, text=app.qString[-i:],
         fill="#333333", font = "Futura 20", anchor="w")
 
     def renderResults(app, canvas):
-        if app.searched:
-
-            canvas.create_text(app.width / 2, app.height * 0.25, fill="#333333",
-            text = f"{len(app.searchResults)} resuts found", font="Futura 16 bold")
+        canvas.create_text(app.width / 2, app.height * 0.25, fill="#333333",
+        text = f"{len(app.searchResults)} resuts found", font="Futura 16 bold")
+        x0 = app.width - app.sx
+        y0 = app.sy + 2 * app.r
+        w = 8 * app.r
+        for i in range(min(len(app.searchResults), app.maxSearches)):
+            color1, color2 = "#333333", "#dddddd"
+            if x0 <= app.mx <= x0 + w and y0 <= app.my <= y0 + app.r:
+                color1, color2 = color2, color1
+            canvas.create_rectangle(x0, y0, x0 + w, y0 + app.r,
+            fill=color1, width=0)
+            text = app.searchResults[i][0]
+            while True:
+                textID = canvas.create_text(x0 + w / 2, y0 + app.r / 2, text=text,
+                fill=color1, font = "Futura 16")
+                bounds = canvas.bbox(textID) 
+                width = bounds[2] - bounds[0]
+                if width < w - app.r:
+                    break
+                canvas.delete(textID)
+                text = text[:-1]
+            if len(text) < len(app.searchResults[i][0]):
+                text += "..."
+            canvas.create_text(x0 + w / 2, y0 + app.r / 2, text=text,
+            fill=color2, font="Futura 16")
+            y0 += 1.5 * app.r
+            if i == app.maxSearches // 2 - 1:
+                x0 = app.width - app.sx + w + 2 * app.r
+                y0 = app.sy + 2 * app.r
 
     def renderButtons(app, canvas):
         canvas.create_rectangle(app.width - app.buttonWidth, app.height - app.buttonHeight,

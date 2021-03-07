@@ -15,5 +15,7 @@ class Select(Mode):
             app.app.setActiveMode(app.app.genome3D)
 
     def redrawAll(app, canvas):
+        canvas.create_text(app.width * 0.50, app.height * 0.3, text=app.app.selectName)
+        canvas.create_text(app.width * 0.50, app.height * 0.35, text=app.app.selectId)
         canvas.create_text(app.width * 0.25, app.height * 0.5, text="To Query")
         canvas.create_text(app.width * 0.75, app.height * 0.5, text="To Visualizer")

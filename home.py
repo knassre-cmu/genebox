@@ -1,5 +1,5 @@
 from cmu_112_graphics import *
-import math, random, numpy
+import math, random, numpy, pygame
 
 class Home(Mode):
     def appStarted(app):
@@ -12,9 +12,15 @@ class Home(Mode):
         app.grid = app.perlinNoise(app.rows, app.cols)
         app.t = 0
         app.mx, app.my = 0, 0
+        pygame.mixer.init()
+        pygame.mixer.music.load("Minecraft.wav")
 
     def modeActivated(app):
         app.mx, app.my = 0, 0
+        pygame.mixer.music.play(loops=-1)
+
+    def modeDeactivated(app):
+        pygame.mixer.music.stop()
 
     def interpolate(app, a, b, w):
         return (b - a) * (3 - w * 2) * w **2 + a

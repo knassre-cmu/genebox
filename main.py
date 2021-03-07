@@ -18,4 +18,7 @@ class GenomeRenderer(ModalApp):
         app.genome3D = Genome3D()
         app.setActiveMode(app.home)
 
+    def appStopped(app):
+        os._exit(0)
+
 GenomeRenderer(width=1000, height=1000)

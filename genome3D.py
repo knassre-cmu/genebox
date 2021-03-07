@@ -44,7 +44,7 @@ class Genome3D(Mode):
         [ app.location[0],  app.location[1],  app.location[2], 1]])
 
     def timerFired(app):
-        app.t += 0.1
+        app.t += 0.1 
         app.calculatePositions()
 
     def mouseDragged(app, event):
@@ -88,6 +88,8 @@ class Genome3D(Mode):
             return "#008855", "#00BB99", "#44CC88", "#005588", "#0099CC", "#4488BB"
         elif base == "A":
             return "#005588", "#0099CC", "#4488BB", "#008855", "#00CC99", "#44BB88"
+        else:
+            return "#550088", "#9900CC", "#8844BB", "#550088", "#8844BB", "#9900CC"
 
     def calculatePositions(app):
         app.polygons = []
