@@ -12,7 +12,6 @@ class GenomeRenderer(ModalApp):
         app.currentGenome = GenomeObject()
         app.home = Home()
         app.query = Query()
-        app.select = Select()
         app.ioPage = IOPage()
         app.editor = Editor()
         app.genome3D = Genome3D()

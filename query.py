@@ -30,6 +30,9 @@ class Query(Mode):
     def mouseMoved(app, event):
         app.mx, app.my = event.x, event.y
 
+    def search(app):
+        pass
+
     def mousePressed(app, event):
         app.mx, app.my = event.x, event.y
         if app.width - app.buttonWidth < app.mx:
@@ -38,7 +41,7 @@ class Query(Mode):
                 return
         elif ((app.mx-app.sx)**2 + (app.my-app.sy)**2)**0.5 < app.r:
             if app.qString != "":
-                print(f"SEARCH: {app.qString}")
+                app.search()
                 return
         x0 = app.width - app.sx
         y0 = app.sy + 2 * app.r
@@ -48,7 +51,8 @@ class Query(Mode):
                 if y0 <= app.my <= y0 + app.r:
                     app.app.selectName, app.app.selectId = app.searchResults[i]
                     print(f"SELECT: {app.searchResults[i]}")
-                    app.app.setActiveMode(app.app.select)
+                    app.app.prevMode = "query"
+                    app.app.setActiveMode(app.app.genome3D)
             y0 += 1.5 * app.r
             if i == app.maxSearches // 2 - 1:
                 x0 = app.width - app.sx + w + 2 * app.r

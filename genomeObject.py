@@ -36,8 +36,9 @@ class GenomeObject(object):
         s += f"BASEGENOME: {self.base}\n"
         s += f"LIGHT_SPLICE: {self.light}\n"
         s += f"MILK_SPLICE: {self.milk}\n"
-        s += f"MILK_SPLICE: {self.blood}\n"
-        s += f"MILK_SPLICE: {self.milk}\n"
-        s += f"MILK_SPLICE: {self.milk}\n"
+        s += f"BLOOD_SPLICE: {self.blood}\n"
+        s += f"FLOWER_SPLICE: {self.milk}\n"
+        s += f"POD_SPLICE: {self.milk}\n"
+        s += f"STEM_SPLICE: {self.milk}\n"
         s += f"SEQUENCE: {self.sequence}"
         return s

@@ -30,7 +30,6 @@ class Genome3D(Mode):
 
     def modeActivated(app):
         app.nucleotides = app.app.currentGenome.sequence
-        print(app.app.currentGenome)
 
     def setupProjection(app):
         forwardVector = numpy.array(app.location) - numpy.array(app.lookAt)
@@ -63,8 +62,8 @@ class Genome3D(Mode):
             if app.height - app.buttonHeight < app.my:
                 if app.app.prevMode == "Editor":
                     app.app.setActiveMode(app.app.editor)
-                elif app.app.prevMode == "Select":
-                    app.app.setActiveMode(app.app.select)
+                elif app.app.prevMode == "Query":
+                    app.app.setActiveMode(app.app.query)
 
     def keyPressed(app, event):
         if event.key == "Up" and app.index > 0:
