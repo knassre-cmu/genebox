@@ -111,7 +111,7 @@ class Home(Mode):
     def mousePressed(app, event):
         app.mx, app.my = event.x, event.y
         if app.mouseInsideDiamond1():
-            app.app.setActiveMode(app.app.ioPage)
+            app.app.setActiveMode(app.app.editor)
         elif app.mouseInsideDiamond2():
             app.app.setActiveMode(app.app.query)
 

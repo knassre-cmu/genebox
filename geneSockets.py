@@ -1,5 +1,6 @@
 class GeneSocket(object):
-    def __init__(self, socketType, phenotype, sequence, x, y):
+    def __init__(self, name, socketType, phenotype, sequence, x, y):
+        self.name = name
         self.socketType = socketType
         self.phenotype = phenotype
         self.sequence = sequence

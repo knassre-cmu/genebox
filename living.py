@@ -15,7 +15,7 @@ class Living(object):
     def reset(self):
         for i in range(len(self.sockets)):
             x, y = self.initial[i]
-            self.sockets[i] = GeneSocket(self.sockets[i].socketType, "Empty", "", x, y)
+            self.sockets[i] = GeneSocket(self.sockets[i].name, self.sockets[i].socketType, "Empty", "", x, y)
 
     def render(self, canvas, r):
         canvas.create_line(self.x, self.y0, self.x, self.y1, fill="#333333", width=12)

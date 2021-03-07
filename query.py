@@ -1,5 +1,61 @@
 from cmu_112_graphics import *
 import math
+import requests
+import bs4
+
+# requires bs4 and lxml pip installs
+
+def searchGenes(searchTerm):
+    searchArgs = {"db": "Gene", "term": searchTerm, "sort": "relevance"}
+    apiSearch = requests.get('https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi', params=searchArgs)
+    searchSoup = bs4.BeautifulSoup(apiSearch.content, "xml")
+    idList = searchSoup.find("IdList")
+    ids = idList.find_all("Id")
+
+    allResults = []
+    for ID in ids:
+        allResults.append(ID.text)
+
+    # Get the top result from your search query and extract the Gene ID
+    topResultID = allResults[0]
+    return topResultID, allResults
+
+def getGeneSeqIDAndRange(resultID):
+    # use the Gene ID in a fetch request
+    geneEntryArgs = {"db": "Gene", "id": resultID, "retmode": "xml"}
+    apiGeneEntry = requests.get('https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi', params=geneEntryArgs)
+
+    # And get the ID for the gene sequence from the db entry
+    geneSoup = bs4.BeautifulSoup(apiGeneEntry.content, "xml")
+    # the last listing on the xml file corresponds to the gene location
+    geneSeqID = geneSoup.find_all("Gene-commentary_accession")[-1].text
+    lineanName = geneSoup.find("Org-ref_taxname").text
+    orgName = geneSoup.find("Org-ref_common").text if geneSoup.find("Org-ref_common") else ""
+    locusName = geneSoup.find("Gene-ref_locus").text
+
+    # then find that actual sequence positions (we'll use these in a minute)
+    # assuming it's the last listed sequence range in the xml file
+    seqIntervalFrom = int(geneSoup.find_all("Seq-interval_from")[-1].text)
+    seqIntervalTo = int(geneSoup.find_all("Seq-interval_to")[-1].text)
+    if orgName == "":
+        return locusName, lineanName, geneSeqID, seqIntervalFrom, seqIntervalTo
+    return locusName, orgName, geneSeqID, seqIntervalFrom, seqIntervalTo
+
+def getAssemblySeq(geneSeqID):
+    geneEntryArgs = {"db": "nuccore", "id": geneSeqID, "rettype": "fasta", 
+        "retmode": "text"}
+    apiAssemblyEntry = requests.get('https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi', params=geneEntryArgs)
+    assemblyFasta = apiAssemblyEntry.text
+    # there's the fasta label at the top of the file that we need to ignore
+    assemblyFastaAnnotEnd = assemblyFasta.find('\n') 
+    assemblySeq = assemblyFasta[(assemblyFastaAnnotEnd + 1):]
+    # newline characters mess up the indexing so we need to remove those
+    assemblySeq = assemblySeq.replace("\n", "")
+    return assemblySeq
+
+def getGeneSeq(assemblySeq, seqIntervalFrom, seqIntervalTo):
+    geneSeq = assemblySeq[seqIntervalFrom:seqIntervalTo + 1]
+    return geneSeq
 
 class Query(Mode):
     def appStarted(app):
@@ -11,7 +67,7 @@ class Query(Mode):
         app.r = app.width * 0.035
         app.qString = ""
         app.maxSearches = 22
-        app.searchResults = [(chr(i)*(i%40), 1000+i) for i in range(97, 117)]
+        app.searchResults = []
 
     def modeActivated(app):
         app.mx, app.my = 0, 0
@@ -31,7 +87,11 @@ class Query(Mode):
         app.mx, app.my = event.x, event.y
 
     def search(app):
-        pass
+        topResultID, allResults = searchGenes(app.qString)
+        app.searchResults = []
+        for result in allResults:
+            try: app.searchResults.append(getGeneSeqIDAndRange(result))
+            except: pass
 
     def mousePressed(app, event):
         app.mx, app.my = event.x, event.y
@@ -49,9 +109,12 @@ class Query(Mode):
         for i in range(len(app.searchResults)):
             if x0 <= app.mx <= x0 + w:
                 if y0 <= app.my <= y0 + app.r:
-                    app.app.selectName, app.app.selectId = app.searchResults[i]
-                    print(f"SELECT: {app.searchResults[i]}")
-                    app.app.prevMode = "query"
+                    name, org, geneSeqID, seqIntervalFrom, seqIntervalTo = app.searchResults[i]
+                    assemblySeq = getAssemblySeq(geneSeqID)
+                    geneSeq = getGeneSeq(assemblySeq, seqIntervalFrom, seqIntervalTo)
+                    app.app.selectName = f"{name} ({org})"
+                    app.app.currentGenome.sequence = geneSeq + "N" * 25
+                    app.app.prevMode = "Query"
                     app.app.setActiveMode(app.app.genome3D)
             y0 += 1.5 * app.r
             if i == app.maxSearches // 2 - 1:
@@ -77,7 +140,7 @@ class Query(Mode):
 
     def renderResults(app, canvas):
         canvas.create_text(app.width / 2, app.height * 0.25, fill="#333333",
-        text = f"{len(app.searchResults)} resuts found", font="Futura 16 bold")
+        text = f"{len(app.searchResults)} results found", font="Futura 16 bold")
         x0 = app.width - app.sx
         y0 = app.sy + 2 * app.r
         w = 8 * app.r
@@ -87,7 +150,7 @@ class Query(Mode):
                 color1, color2 = color2, color1
             canvas.create_rectangle(x0, y0, x0 + w, y0 + app.r,
             fill=color1, width=0)
-            text = app.searchResults[i][0]
+            text = f"{app.searchResults[i][0]} ({app.searchResults[i][1]})"
             while True:
                 textID = canvas.create_text(x0 + w / 2, y0 + app.r / 2, text=text,
                 fill=color1, font = "Futura 16")

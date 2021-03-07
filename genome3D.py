@@ -215,7 +215,14 @@ class Genome3D(Mode):
                     poly[i] += 10 * math.sin(3*app.t)
         canvas.create_polygon(*poly, fill="White", width=0)
 
+    def renderDisplay(app, canvas):
+        canvas.create_text(app.width * 0.7, app.height * 0.1, text=app.app.selectName,
+        font="Futura 20", fill="#333333")
+        canvas.create_text(app.width * 0.7, app.height * 0.13, text=f"{len(app.app.currentGenome.sequence)-25} base pairs",
+        font="Futura 17", fill="#333333")
+
     def redrawAll(app, canvas):
         app.renderNucleotides(canvas)
         app.renderScrollbar(canvas)
         app.renderButtons(canvas)
+        app.renderDisplay(canvas)

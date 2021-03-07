@@ -20,45 +20,73 @@ class Editor(Mode):
         app.resetSockets()
         app.initBases()
 
+    def readFile(app, path):
+        with open(path, "r") as f:
+            text = f.read().replace("\n", " ").replace("", "")
+        return text
+
     def getBuiltinSequence(app, name):
+        if name == "Insulin Milk":
+            return app.readFile("builtinGenes/insulin.txt")
+        elif name == "Lactase Milk":
+            return app.readFile("builtinGenes/lactase.txt")
+        elif name == "Spider Milk":
+            return app.readFile("builtinGenes/spider.txt")
+        elif "Blood" in name:
+            return app.readFile("builtinGenes/abogene.txt")
+        elif name == "Cyan Biolum":
+            return app.readFile("builtinGenes/cyan.txt")
+        elif name == "Red Biolum":
+            return app.readFile("builtinGenes/red.txt")
+        elif "Biolum" in name:
+            return app.readFile("builtinGenes/green.txt")
+        elif "Flavonoid" in name:
+            return app.readFile("builtinGenes/flower.txt")
+        elif "Legumin" in name:
+            return app.readFile("builtinGenes/stem.txt")
+        elif "Gibberellin" in name:
+            return app.readFile("builtinGenes/pod.txt")
         return "ACTGN" * 10
 
     def resetSockets(app):
         app.sockets = [
-            GeneSocket("Light", "Red", app.getBuiltinSequence("Red Biolum"), 525, 100),
-            GeneSocket("Light", "Orange", app.getBuiltinSequence("Orange Biolum"), 625, 100),
-            GeneSocket("Light", "Yellow", app.getBuiltinSequence("Yellow Biolum"), 725, 100),
-            GeneSocket("Light", "Green", app.getBuiltinSequence("Green Biolum"), 825, 100),
-            GeneSocket("Light", "Cyan", app.getBuiltinSequence("Cyan Biolum"), 925, 100),
-            GeneSocket("Milk", "Spider", app.getBuiltinSequence("Spider Milk"), 625, 200),
-            GeneSocket("Milk", "Lactase", app.getBuiltinSequence("Lactase Milk"), 725, 200),
-            GeneSocket("Milk", "Insulin", app.getBuiltinSequence("Insulin Milk"), 825, 200),
-            GeneSocket("Blood", "AB", app.getBuiltinSequence("AB Blood"), 575, 300),
-            GeneSocket("Blood", "A", app.getBuiltinSequence("A Blood"), 675, 300),
-            GeneSocket("Blood", "B", app.getBuiltinSequence("B Blood"), 775, 300),
-            GeneSocket("Blood", "O", app.getBuiltinSequence("O Blood"), 875, 300),
-            GeneSocket("Flower", "Yellow", app.getBuiltinSequence("Yellow Flower"), 675, 400),
-            GeneSocket("Flower", "Purple", app.getBuiltinSequence("Purple Flower"), 775, 400),
-            GeneSocket("Stem", "Tall", app.getBuiltinSequence("Tall Stem"), 675, 500),
-            GeneSocket("Stem", "Dwarf", app.getBuiltinSequence("Dwarf Stem"), 775, 500),
-            GeneSocket("Pod", "Yellow", app.getBuiltinSequence("Yellow Pod"), 675, 600),
-            GeneSocket("Pod", "Green", app.getBuiltinSequence("Green Pod"), 775, 600)]
+            GeneSocket("Red Fluorescent Protein", "Light", "Red", app.getBuiltinSequence("Red Biolum"), 575, 100),
+            GeneSocket("Green Fluorescent Protein (Yellow)", "Light", "Yellow", app.getBuiltinSequence("Yellow Biolum"), 675, 100),
+            GeneSocket("Green Fluorescent Protein", "Light", "Green", app.getBuiltinSequence("Green Biolum"), 775, 100),
+            GeneSocket("Cyan Fluorescent Protein", "Light", "Cyan", app.getBuiltinSequence("Cyan Biolum"), 875, 100),
+            GeneSocket("Major Ampullate Spidroin", "Milk", "Spider", app.getBuiltinSequence("Spider Milk"), 625, 200),
+            GeneSocket("Lactase", "Milk", "Lactase", app.getBuiltinSequence("Lactase Milk"), 725, 200),
+            GeneSocket("Insulin", "Milk", "Insulin", app.getBuiltinSequence("Insulin Milk"), 825, 200),
+            GeneSocket("ABO Gene (AB)", "Blood", "AB", app.getBuiltinSequence("AB Blood"), 575, 300),
+            GeneSocket("ABO Gene (A)", "Blood", "A", app.getBuiltinSequence("A Blood"), 675, 300),
+            GeneSocket("ABO Gene (B)", "Blood", "B", app.getBuiltinSequence("B Blood"), 775, 300),
+            GeneSocket("ABO Gene (O)", "Blood", "O", app.getBuiltinSequence("O Blood"), 875, 300),
+            GeneSocket("Flavonoid 3',5'-Hydroxylase (Yellow)", "Flower", "Yellow", app.getBuiltinSequence("Yellow Flower"), 675, 400),
+            GeneSocket("Flavonoid 3',5'-Hydroxylase (Purple)", "Flower", "Purple", app.getBuiltinSequence("Purple Flower"), 775, 400),
+            GeneSocket("Legumin A2 (Tall)", "Stem", "Tall", app.getBuiltinSequence("Tall Stem"), 675, 500),
+            GeneSocket("Legumin A2 (Dwarf)", "Stem", "Dwarf", app.getBuiltinSequence("Dwarf Stem"), 775, 500),
+            GeneSocket("Gibberellin 3-Beta-Dioxygenase 1 (Yellow)", "Pod", "Yellow", app.getBuiltinSequence("Yellow Pod"), 675, 600),
+            GeneSocket("Gibberellin 3-Beta-Dioxygenase 1 (Green)", "Pod", "Green", app.getBuiltinSequence("Green Pod"), 775, 600)]
         
     def initBases(app):
         app.jellyfish = Living("Jellyfish", 200, 0, app.height,
-            [GeneSocket("Light", "Empty", "", None, 0.5)])
+            [GeneSocket("", "Light", "Empty", "", None, 0.5)])
         app.goat = Living("Goat", 200, 0, app.height,
-            [GeneSocket("Milk", "Empty", "", None, 0.3),
-             GeneSocket("Light", "Empty", "", None, 0.5),
-             GeneSocket("Blood", "Empty", "", None, 0.7)])
+            [GeneSocket("", "Milk", "Empty", "", None, 0.3),
+             GeneSocket("", "Light", "Empty", "", None, 0.5),
+             GeneSocket("", "Blood", "Empty", "", None, 0.7)])
         app.pea = Living("Pea Plant", 200, 0, app.height,
-            [GeneSocket("Flower", "Empty", "", None, 0.3),
-             GeneSocket("Stem", "Empty", "", None, 0.5),
-             GeneSocket("Pod", "Empty", "", None, 0.7)])
+            [GeneSocket("", "Flower", "Empty", "", None, 0.3),
+             GeneSocket("", "Stem", "Empty", "", None, 0.5),
+             GeneSocket("", "Pod", "Empty", "", None, 0.7)])
         app.bases = [app.jellyfish, app.goat, app.pea]
 
     def mousePressed(app, event):
         app.mx, app.my = event.x, event.y
+        if app.width - app.buttonWidth < app.mx:
+            if app.height - app.buttonHeight < app.my:
+                app.app.setActiveMode(app.app.home)
+                return
         for socket in app.sockets:
             if ((event.x - socket.x)**2 + (event.y - socket.y)**2)**0.5 < app.r:
                 app.holding = socket
@@ -66,6 +94,7 @@ class Editor(Mode):
         for socket in app.bases[0].sockets:
             if ((event.x - socket.x)**2 + (event.y - socket.y)**2)**0.5 < 2 * app.r:
                 if socket.phenotype == "Empty": continue
+                app.app.selectName = socket.name
                 app.app.currentGenome.sequence = socket.sequence
                 app.app.prevMode = "Editor"
                 app.app.setActiveMode(app.app.genome3D)
@@ -92,7 +121,6 @@ class Editor(Mode):
                     app.resetSockets()
                     break
             app.holding = None
-        
 
     def timerFired(app):
         app.t += 0.1
